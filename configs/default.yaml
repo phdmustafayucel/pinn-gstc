@@ -1,0 +1,10 @@
+model:
+  layers: [1, 64, 64, 64, 2]  # 2 outputs: real & imag
+
+physics:
+  k: 10.0
+  chi: 0.5
+
+training:
+  lr: 0.001
+  epochs: 5000
