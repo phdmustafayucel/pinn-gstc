@@ -1,10 +1,53 @@
 import torch
 
-def helmholtz_residual(model, z, k):
-    z.requires_grad_(True)
-    E = model(z)
 
-    dE_dz = torch.autograd.grad(E, z, torch.ones_like(E), create_graph=True)[0]
-    d2E_dz2 = torch.autograd.grad(dE_dz, z, torch.ones_like(dE_dz), create_graph=True)[0]
+def grad(outputs, inputs):
+    """
+    Compute derivative using automatic differentiation.
 
-    return d2E_dz2 + k**2 * E
+    Parameters
+    ----------
+    outputs : tensor
+    inputs : tensor
+
+    Returns
+    -------
+    tensor
+        derivative
+    """
+
+    return torch.autograd.grad(
+        outputs,
+        inputs,
+        grad_outputs=torch.ones_like(outputs),
+        create_graph=True
+    )[0]
+
+
+def helmholtz_residual(model, x, k):
+    """
+    Compute the PDE residual:
+
+        E'' + k^2 E
+
+    Parameters
+    ----------
+    model : PINN
+    x : tensor
+    k : float
+
+    Returns
+    -------
+    tensor
+        PDE residual
+    """
+
+    E = model(x)
+
+    dE_dx = grad(E, x)
+
+    d2E_dx2 = grad(dE_dx, x)
+
+    residual = d2E_dx2 + (k**2) * E
+
+    return residual
